@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+</head>
+
+<body>
+	<form id="form">
+		<input id="name" placeholder="name">
+		<input id="age" placeholder="age" inputmode="numeric" pattern="[0-9]*">
+		<button>Submit</button>
+	</form>
+	<button id="clearButton">clear db</button>
+	<button id="getUsers">Get Users</button>
+	<div id="usersDiv"></div>
+
+	<script>
+		const form = document.getElementById('form');
+		const nameInput = document.getElementById('name');
+		const ageInput = document.getElementById('age');
+
+		form.addEventListener('submit', async (e) => {
+			e.preventDefault();
+			const name = nameInput.value;
+			const age = +ageInput.value;
+
+			fetch('https://test-server-back.onrender.com', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ name, age })
+			});
+			const response = await fetch('https://test-server-back.onrender.com');
+			const data = await response.json();
+
+			usersDiv.innerHTML = '';
+
+			data.forEach(user => {
+				const div = document.createElement('div');
+				div.textContent = `Name: ${user.name}, age: ${user.age}`;
+				usersDiv.appendChild(div);
+			});
+		})
+
+		const getUsersButton = document.getElementById('getUsers');
+		const usersDiv = document.getElementById('usersDiv');
+		getUsersButton.addEventListener('click', async () => {
+			const response = await fetch('https://test-server-back.onrender.com');
+			const data = await response.json();
+
+			usersDiv.innerHTML = '';
+
+			data.forEach(user => {
+				const div = document.createElement('div');
+				div.textContent = `Name: ${user.name}, age: ${user.age}`;
+				usersDiv.appendChild(div);
+			});
+		});
+
+		const clearButton = document.getElementById('clearButton')
+
+		clearButton.addEventListener('click', async () => {
+			fetch('https://test-server-back.onrender.com', {
+				method: 'DELETE'
+			})
+				.then(data => data.json())
+				.then((data) => {
+					clearButton.textContent = data;
+					setTimeout(() => {
+						clearButton.textContent = 'clear db';
+						usersDiv.innerHTML = '';
+					}, 2000)
+				})
+		})
+	</script>
+</body>
+
+</html>
